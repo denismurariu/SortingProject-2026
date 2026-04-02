@@ -34,8 +34,35 @@ Conform datelor inregistrate in `rezultate.csv`, s-au observat urmatoarele perfo
 * **Limitarile O(n^2)**: Bubble Sort a prezentat o crestere exponentiala a timpului, devenind impracticabil pentru seturi de date mari.
 
 
-![Performanta Algoritmi](Grafic.png)
+```python
+import csv
+import matplotlib.pyplot as plt
 
+x = []
+y = []
+
+# Citire date din CSV
+with open('rezultate.csv', 'r') as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        x.append(float(row['x']))
+        y.append(float(row['y']))
+
+# Creare grafic
+plt.figure(figsize=(8, 5))
+plt.plot(x, y, marker='o')
+
+# Setare scară logaritmică pe axa Y
+plt.yscale('log')
+
+# Etichete și titlu
+plt.xlabel('X')
+plt.ylabel('Y (log scale)')
+plt.title('Grafic cu scară logaritmică')
+
+plt.grid(True)
+plt.show()
+```
 
 ## Instructiuni de Rulare
 
