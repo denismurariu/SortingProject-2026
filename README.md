@@ -33,7 +33,7 @@ Conform datelor inregistrate in `rezultate.csv`, s-au observat urmatoarele perfo
 * **Impactul structurii datelor**: Pe setul de date "Sortat", Insertion Sort a fost cel mai rapid algoritm (0.0004 s), confirmand eficienta sa in cazurile optime.
 * **Limitarile O(n^2)**: Bubble Sort a prezentat o crestere exponentiala a timpului, devenind impracticabil pentru seturi de date mari.
 
-*
+
 ![Performanta Algoritmi](Grafic.png)
 
 
