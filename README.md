@@ -1,41 +1,131 @@
-# SortingProject-2026
-# Analiza Performantei Algoritmilor de Sortare
+# Analiza sortarilor
 
-Acest proiect reprezinta un studiu experimental care compara eficienta algoritmilor de sortare Bubble Sort, Insertion Sort si Merge Sort. Testarea a fost realizata prin cresterea progresiva a numarului de elemente (N) pana la pragul de 125.000, observand impactul complexitatii algoritmice asupra timpului de executie.
+Proiectul compară experimental performanța a 6 algoritmi de sortare implementați în C și vizualizați ulterior cu Python:
 
-## Algoritmi Analizati
+- `BubbleSort`
+- `InsertionSort`
+- `SelectionSort`
+- `ShellSort`
+- `QuickSort`
+- `MergeSort`
 
-1. **Bubble Sort**: Algoritm bazat pe comparatii succesive. Complexitate: O(n^2).
-2. **Insertion Sort**: Eficient pentru seturi mici sau aproape sortate. Complexitate: O(n^2).
-3. **Merge Sort**: Algoritm de tip Divide et Impera. Complexitate: O(n log n).
+Benchmark-ul rulează pe mai multe dimensiuni de intrare, salvează timpii în `rezultate.csv`, iar `grafic.py` generează un grafic interactiv din aceste date.
 
-## Metodologie
+## Structura proiectului
 
-Programul a fost rulat intr-o bucla continua pentru a genera date si a masura timpii de executie. Pentru fiecare valoare N, au fost testate patru scenarii:
-* **Random**: Date generate aleatoriu.
-* **Sortat**: Date deja ordonate crescator.
-* **Inversat**: Date ordonate descrescator (Worst Case).
-* **Aproape Sortat**: Date in care 95% din elemente sunt la locul corect.
+- `main.c` - implementează algoritmii, generează seturile de test și măsoară timpii de execuție
+- `rezultate.csv` - rezultatele benchmark-ului în format tabelar
+- `grafic.py` - citește CSV-ul și afișează grafice interactive cu Plotly
+- `Analiza_sortarilor.pdf` - documentație/export asociat proiectului
 
-## Rezultate Obtinute
+## Ce testează programul
 
-Conform datelor inregistrate in `rezultate.csv`, s-au observat urmatoarele performante la pragul de 120.000 de elemente (cazul Random):
+Pentru fiecare valoare `N`, programul generează 4 tipuri de date:
 
-| Algoritm | Timp (secunde) |
-| :--- | :--- |
-| **Merge Sort** | 0.047 s |
-| **Insertion Sort** | 8.824 s |
-| **Bubble Sort** | 40.332 s |
+- `Random`
+- `Sortat`
+- `Inversat`
+- `AproapeSortat`
 
-### Concluzii Experimentale
+Pentru fiecare set, rulează toți cei 6 algoritmi pe o copie a acelorași date și scrie în CSV:
 
-* **Eficiența O(n log n)**: Merge Sort a demonstrat o stabilitate remarcabila, ramanand sub pragul de 0.1 secunde chiar si la 125.000 de elemente.
-* **Impactul structurii datelor**: Pe setul de date "Sortat", Insertion Sort a fost cel mai rapid algoritm (0.0004 s), confirmand eficienta sa in cazurile optime.
-* **Limitarile O(n^2)**: Bubble Sort a prezentat o crestere exponentiala a timpului, devenind impracticabil pentru seturi de date mari.
+- `N`
+- `TipDate`
+- `Algoritm`
+- `TimpSec`
 
-## Instructiuni de Rulare
+## Intervalul de testare
 
-### Compilare
-Utilizati un compilator C standard (de exemplu, GCC):
+Programul pornește de la `N = 100` și ajunge până la `N = 1.000.000`, cu pași diferiți:
+
+- `+100` până la `1000`
+- `+1000` până la `10000`
+- `+5000` până la `1000000`
+
+Fișierul `rezultate.csv` existent conține:
+
+- 217 valori distincte pentru `N`
+- 4 tipuri de date
+- 6 algoritmi
+
+În total, rezultă `217 x 4 x 6 = 5208` măsurători.
+
+## Observații importante despre implementare
+
+- `QuickSort` folosește ultimul element ca pivot, deci poate intra în caz defavorabil pe date deja sortate sau inversate.
+- `MergeSort` alocă memorie auxiliară la interclasare.
+- Valorile din `Random` sunt generate cu `rand()`.
+- La fiecare rulare, `rezultate.csv` este recreat de la zero.
+
+## Exemple din rezultatele actuale
+
+Pentru `N = 1.000.000`, în `rezultate.csv` apar, printre altele, următoarele valori:
+
+| TipDate | Algoritm | TimpSec |
+|---|---|---:|
+| Random | QuickSort | 0.171411 |
+| Random | MergeSort | 0.548118 |
+| Sortat | InsertionSort | 0.003400 |
+| Sortat | QuickSort | 1790.000000 |
+| Inversat | ShellSort | 0.103644 |
+| AproapeSortat | QuickSort | 0.197323 |
+
+Aceste rezultate evidențiază bine diferența dintre algoritmii `O(n^2)` și cei mai eficienți pe intrări mari, dar și sensibilitatea implementării `QuickSort` la alegerea pivotului.
+
+## Rulare
+
+### 1. Compilare benchmark C
+
 ```bash
-gcc main.c -o sort_benchmark
+gcc -O2 -Wall -Wextra main.c -o analiza_sortari
+```
+
+### 2. Rulare benchmark
+
+```bash
+./analiza_sortari
+```
+
+La final se va genera sau suprascrie fișierul `rezultate.csv`.
+
+### 3. Instalare dependențe pentru grafic
+
+```bash
+pip install pandas plotly
+```
+
+### 4. Afișare grafic interactiv
+
+```bash
+python3 grafic.py
+```
+
+Scriptul citește `rezultate.csv` și afișează un grafic de tip linie, separat pe coloane pentru fiecare `TipDate`.
+
+## Cum este construit graficul
+
+`grafic.py` folosește:
+
+- `pandas` pentru citirea datelor
+- `plotly.express` pentru vizualizare
+
+Graficul:
+
+- are axa `X` = `N`
+- are axa `Y` = `TimpSec`
+- colorează seriile după `Algoritm`
+- separă vizual rezultatele cu `facet_col="TipDate"`
+- folosește tema `plotly_dark`
+
+## Limitări
+
+- Timpul este măsurat cu `clock()`, deci depinde de platformă și de încărcarea sistemului.
+- Benchmark-ul rulează algoritmi ineficienți și pentru `N` foarte mare, deci poate dura mult.
+- `QuickSort` din implementarea curentă nu este optimizat pentru cazurile aproape sortate sau deja ordonate.
+
+## Posibile îmbunătățiri
+
+- înlocuirea pivotului fix din `QuickSort` cu median-of-three sau pivot aleator
+- export automat al graficului în fișier
+- repetarea fiecărui test de mai multe ori și calcularea unei medii
+- adăugarea validării că vectorii sunt corect sortați după fiecare algoritm

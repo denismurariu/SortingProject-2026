@@ -36,6 +36,71 @@ void insertionSort(int v[], int n)
     }
 }
 
+void selectionSort(int v[], int n)
+{
+    int i, j, minIdx, aux;
+    for (i = 0; i < n - 1; i++)
+    {
+        minIdx = i;
+        for (j = i + 1; j < n; j++)
+            if (v[j] < v[minIdx])
+                minIdx = j;
+
+        if (minIdx != i)
+        {
+            aux = v[i];
+            v[i] = v[minIdx];
+            v[minIdx] = aux;
+        }
+    }
+}
+
+void shellSort(int v[], int n)
+{
+    int gap, i, j, temp;
+    for (gap = n / 2; gap > 0; gap /= 2)
+    {
+        for (i = gap; i < n; i++)
+        {
+            temp = v[i];
+            for (j = i; j >= gap && v[j - gap] > temp; j -= gap)
+                v[j] = v[j - gap];
+            v[j] = temp;
+        }
+    }
+}
+
+int partitioneaza(int v[], int st, int dr)
+{
+    int pivot = v[dr];
+    int i = st - 1;
+    for (int j = st; j < dr; j++)
+    {
+        if (v[j] <= pivot)
+        {
+            i++;
+            int aux = v[i];
+            v[i] = v[j];
+            v[j] = aux;
+        }
+    }
+
+    int aux = v[i + 1];
+    v[i + 1] = v[dr];
+    v[dr] = aux;
+    return i + 1;
+}
+
+void quickSort(int v[], int st, int dr)
+{
+    if (st < dr)
+    {
+        int p = partitioneaza(v, st, dr);
+        quickSort(v, st, p - 1);
+        quickSort(v, p + 1, dr);
+    }
+}
+
 void interclaseaza(int v[], int st, int m, int dr)
 {
     int i, j, k;
@@ -114,6 +179,7 @@ void copiaza(int sursa[], int dest[], int n)
 
 int main()
 {
+    const int N_MAX = 1000000;
     srand(time(NULL));
     FILE *f = fopen("rezultate.csv", "w");
     fprintf(f, "N,TipDate,Algoritm,TimpSec\n");
@@ -123,7 +189,7 @@ int main()
     char *tipuri[] = {"Random", "Sortat", "Inversat", "AproapeSortat"};
     clock_t s, e;
 
-    while (1)
+    while (n <= N_MAX)
     {
         printf("--- TEST N = %d ---\n", n);
         int *orig = malloc(n * sizeof(int));
@@ -155,6 +221,30 @@ int main()
             e = clock();
             fprintf(f, "%d,%s,InsertionSort,%f\n", n, tipuri[t], (double)(e - s) / CLOCKS_PER_SEC);
 
+            printf(" Selection...");
+            fflush(stdout);
+            copiaza(orig, lucru, n);
+            s = clock();
+            selectionSort(lucru, n);
+            e = clock();
+            fprintf(f, "%d,%s,SelectionSort,%f\n", n, tipuri[t], (double)(e - s) / CLOCKS_PER_SEC);
+
+            printf(" Shell...");
+            fflush(stdout);
+            copiaza(orig, lucru, n);
+            s = clock();
+            shellSort(lucru, n);
+            e = clock();
+            fprintf(f, "%d,%s,ShellSort,%f\n", n, tipuri[t], (double)(e - s) / CLOCKS_PER_SEC);
+
+            printf(" Quick...");
+            fflush(stdout);
+            copiaza(orig, lucru, n);
+            s = clock();
+            quickSort(lucru, 0, n - 1);
+            e = clock();
+            fprintf(f, "%d,%s,QuickSort,%f\n", n, tipuri[t], (double)(e - s) / CLOCKS_PER_SEC);
+
             printf(" Merge...\n");
             fflush(stdout);
             copiaza(orig, lucru, n);
@@ -171,8 +261,10 @@ int main()
             n += 100;
         else if (n < 10000)
             n += 1000;
-        else
+        else if (n < N_MAX)
             n += 5000;
+        else
+            break;
     }
     return 0;
 }
